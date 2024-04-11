@@ -1,8 +1,20 @@
-const { Server } = require("socket.io");
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
 
-const io = new Server(8000, {
-  cors: true,
+const app = express();
+app.use(cors()); // Add this line to enable CORS
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
 });
+
+
 
 const emailToSocketIdMap = new Map();
 const socketidToEmailMap = new Map();
@@ -35,4 +47,11 @@ io.on("connection", (socket) => {
     console.log("peer:nego:done", ans);
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
   });
+});
+
+
+
+
+server.listen(8000, () => {
+  console.log('Server is running on port 8000');
 });
